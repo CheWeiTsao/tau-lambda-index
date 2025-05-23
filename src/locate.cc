@@ -9,7 +9,7 @@
 int main(int argc, char* argv[]) {
     if (argc < 4) {
         std::cerr << "Usage: " << argv[0] 
-                  << " [input index path] [input pattern path] [output results path] [xbwt only](0/1, optional)" << std::endl;
+                  << " [input index path] [input pattern path] [output results path]" << std::endl;
         return 1;
     }
 

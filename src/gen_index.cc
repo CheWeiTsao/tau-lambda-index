@@ -10,7 +10,7 @@
 int main(int argc, char* argv[]) {
     if (argc < 4) {
         std::cerr << "Usage: " << argv[0] 
-                  << "./gen_index [mf path] [output index path] [self-index type] [log path](optional) [M](optional)(for hybrid_index)" << std::endl;
+                  << "./gen_index [input mf path] [output index path] [self-index type] [output log path](optional)" << std::endl;
         return 1;
     }
 
