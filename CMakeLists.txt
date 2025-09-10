@@ -5,26 +5,48 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -w -DNDEBUG")
 
-# Try to locate SDSL and divsufsorts
+# Try to locate SDSL and divsufsort
+option(SDSL_ROOT "Prefix where SDSL-lite is installed (optional)" "")
+
+if(SDSL_ROOT)
+  list(PREPEND CMAKE_PREFIX_PATH "${SDSL_ROOT}")
+endif()
+
 find_path(SDSL_INCLUDE_DIR sdsl/suffix_arrays.hpp
-  HINTS /opt/homebrew/include /usr/local/include /usr/include
+  HINTS
+    /opt/homebrew/include
+    /usr/local/include
+    /usr/include
+    ${CMAKE_PREFIX_PATH}/include
+    $ENV{HOME}/.local/include
   PATH_SUFFIXES sdsl
-  NO_DEFAULT_PATH
 )
 
 find_library(SDSL_LIB NAMES sdsl
-  HINTS /opt/homebrew/lib /usr/local/lib /usr/lib
-  NO_DEFAULT_PATH
+  HINTS
+    /opt/homebrew/lib
+    /usr/local/lib
+    /usr/lib
+    ${CMAKE_PREFIX_PATH}/lib
+    $ENV{HOME}/.local/lib
 )
 
 find_library(DIVSUFSORT_LIB NAMES divsufsort
-  HINTS /opt/homebrew/lib /usr/local/lib /usr/lib
-  NO_DEFAULT_PATH
+  HINTS
+    /opt/homebrew/lib
+    /usr/local/lib
+    /usr/lib
+    ${CMAKE_PREFIX_PATH}/lib
+    $ENV{HOME}/.local/lib
 )
 
 find_library(DIVSUFSORT64_LIB NAMES divsufsort64
-  HINTS /opt/homebrew/lib /usr/local/lib /usr/lib
-  NO_DEFAULT_PATH
+  HINTS
+    /opt/homebrew/lib
+    /usr/local/lib
+    /usr/lib
+    ${CMAKE_PREFIX_PATH}/lib
+    $ENV{HOME}/.local/lib
 )
 
 if(NOT SDSL_INCLUDE_DIR OR NOT SDSL_LIB OR NOT DIVSUFSORT_LIB OR NOT DIVSUFSORT64_LIB)
@@ -32,7 +54,12 @@ if(NOT SDSL_INCLUDE_DIR OR NOT SDSL_LIB OR NOT DIVSUFSORT_LIB OR NOT DIVSUFSORT6
   message(STATUS "SDSL_LIB: ${SDSL_LIB}")
   message(STATUS "DIVSUFSORT_LIB: ${DIVSUFSORT_LIB}")
   message(STATUS "DIVSUFSORT64_LIB: ${DIVSUFSORT64_LIB}")
-  message(FATAL_ERROR "❌ Required libraries not found. Ple   ase install with: brew install sdsl-lite divsufsort")
+  message(FATAL_ERROR "❌ Required libraries not found.
+  Hints:
+    1) If you installed with: ./install.sh \$HOME/.local
+       then configure with:   -DCMAKE_PREFIX_PATH=\$HOME/.local
+    2) Or pass explicit root: -DSDSL_ROOT=<prefix>
+    3) macOS (Homebrew): brew install sdsl-lite divsufsort")
 endif()
 
 # Include paths
