@@ -62,6 +62,8 @@ if(NOT SDSL_INCLUDE_DIR OR NOT SDSL_LIB OR NOT DIVSUFSORT_LIB OR NOT DIVSUFSORT6
     3) macOS (Homebrew): brew install sdsl-lite divsufsort")
 endif()
 
+find_package(Threads REQUIRED)
+
 # Include paths
 include_directories(${SDSL_INCLUDE_DIR})
 include_directories(include/self_indexes/LMS-based-self-index-LPG_grid/include/lpg/sdsl-files)
@@ -125,7 +127,7 @@ add_executable(locate src/locate.cc ${UTIL_SRC} ${LZ77_Ref} ${LMS_Ref})
 add_executable(serialize_partition src/serialize_partition.cc ${UTIL_SRC} ${LZ77_Ref} ${LMS_Ref})
 
 # Link libraries
-set(COMMON_LIBS ${SDSL_LIB} ${DIVSUFSORT_LIB} ${DIVSUFSORT64_LIB})
+set(COMMON_LIBS ${SDSL_LIB} ${DIVSUFSORT_LIB} ${DIVSUFSORT64_LIB} Threads::Threads)
 target_link_libraries(gen_index ${COMMON_LIBS})
 target_link_libraries(gen_pattern ${COMMON_LIBS})
 target_link_libraries(locate ${COMMON_LIBS})
