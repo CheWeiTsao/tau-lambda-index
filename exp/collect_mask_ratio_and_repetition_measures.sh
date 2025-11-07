@@ -21,7 +21,7 @@ create_directory() {
 check_directory() {
   local dir=$1
   if [ ! -d "$dir" ]; then
-    echo "❌ Directory $dir does not exist. Breaking out."
+    echo "Directory $dir does not exist. Breaking out."
     exit 1
   fi
 }
@@ -117,3 +117,5 @@ for config in "${configs[@]}"; do
   
   done
 done
+
+echo "Results stored in ${outputFile}."

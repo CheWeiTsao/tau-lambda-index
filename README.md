@@ -64,17 +64,22 @@ If you want to examine the partitioned XBWT and masked self-index:
 
 ## Reproduce Paper Experiments
 To reproduce the experimental results from our paper, use the scripts in the exp/ folder:  
-1. Generate minimal factors and patterns
+1. Go to the exp/ folder
+```bash
+cd exp
+```
+
+2. Generate minimal factors and patterns
 ```bash
 ./exp/gen_mf_and_pattern.sh
 ```
 
-2. Build tge index
+3. Build tge index
 ```bash
 ./exp/gen_idx.sh
 ```
 
-3. Run locate queries 
+4. Run locate queries 
 ```bash
 ./exp/locate.sh
 ```

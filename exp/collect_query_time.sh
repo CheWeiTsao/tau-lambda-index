@@ -21,7 +21,7 @@ create_directory() {
 check_directory() {
   local dir=$1
   if [ ! -d "$dir" ]; then
-    echo "❌ Directory $dir does not exist. Breaking out."
+    echo "Directory $dir does not exist. Breaking out."
     exit 1
   fi
 }
@@ -57,7 +57,7 @@ parse_result_file() {
   done < "$file_path"
 }
 
-outputFile="[summary]query_time_and_RSS_space"
+outputFile="[summary]query_time"
 touch ${outputFile}
 echo -e "xbwt_time(us)\ttime(us)\tocc\ttext_length\ttype\tcorpus\twith_mf\ttau_l\ttau_u\tlambda\tmasked_ratio" > "${outputFile}"
 
@@ -128,3 +128,5 @@ for config in "${configs[@]}"; do
     done
   done
 done
+
+echo "Results stored in ${outputFile}."

@@ -3,7 +3,6 @@ ulimit -v $((150*1024*1024))
 
 # config = [corpus name] [tau_l] [tau_u] [lambda] [pattern cnt]
 configs=(
-  "'english dblp dna_real influenza'         '0' '0'                 '0' '100'"
   "english         '0' '1 2 3 4'                 '20 60 100 200' '100'"
   "dblp            '0' '1 2 3 4'                 '20 60 100 200' '100'"
   "dna_real        '0' '20 40 60 80'             '20 60 100 200' '100'"
@@ -12,11 +11,13 @@ configs=(
 )
 
 create_rawText() {
-  local dir=$1
-  local file=$2
-  if [ ! -d "$dir" ]; then
-    echo "rawText $dir does not exist. Uncompresseing..."
-    unxz -c "dataset/${file}" > "$dir"
+  local dir1=$1
+  local dir2=$2
+  local file=$3
+  if [ ! -d "$dir1" ]; then
+    echo "rawText $dir1 does not exist. Uncompresseing..."
+    unxz -c "dataset/${file}" > "$dir1"
+    ./${exec_dir}/gen_mf "$dir1" "$dir2/0_0_0_mf" "0" "0" "0" "$delimiter_symbols"
   fi
 }
 
@@ -31,7 +32,7 @@ create_directory() {
 check_directory() {
   local dir=$1
   if [ ! -d "$dir" ]; then
-    echo "❌ Directory $dir does not exist. Breaking out."
+    echo "Directory $dir does not exist. Breaking out."
     exit 1
   fi
 }
@@ -59,11 +60,11 @@ for config in "${configs[@]}"; do
 
     mf_output_dir="${folder}/${mfSubfolder}"
     create_directory "$mf_output_dir"
-
-    create_rawText "$input_text_path" "$corpus"
-
+    
     pattern_output_dir="${folder}/${patternSubfolder}"
     create_directory "$pattern_output_dir"
+
+    create_rawText "$input_text_path" "$mf_output_dir" "$corpus"
 
     for tau_l_value in "${tau_l[@]}"; do
       for tau_u_value in "${tau_u[@]}"; do

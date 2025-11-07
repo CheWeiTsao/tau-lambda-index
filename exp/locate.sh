@@ -3,7 +3,6 @@ ulimit -v $((180*1024*1024))
 
 # config = [corpus name] [idx type] [tau_l] [tau_u] [lambda]
 configs=(
-  "'english dblp dna_real influenza'    '1 2 3'   '0'   '0'                       '0'            "
   "english                              '1 2 3'   '0'   '1 2 3 4'                 '20 60 100 200'"
   "dblp                                 '1 2 3'   '0'   '1 2 3 4'                 '20 60 100 200'"
   "dna_real                             '1 2 3'   '0'   '20 40 60 80'             '20 60 100 200'"
@@ -22,7 +21,7 @@ create_directory() {
 check_directory() {
   local dir=$1
   if [ ! -d "$dir" ]; then
-    echo "❌ Directory $dir does not exist. Breaking out."
+    echo "Directory $dir does not exist. Breaking out."
     exit 1
   fi
 }

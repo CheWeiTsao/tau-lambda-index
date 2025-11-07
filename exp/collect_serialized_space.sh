@@ -19,7 +19,7 @@ echo -e "type\tcorpus\ttau_l\ttau_u\tlambda\txbwt_size_bytes\timasked_index_size
 check_directory() {
   local dir=$1
   if [ ! -d "$dir" ]; then
-    echo "❌ Directory $dir does not exist. Breaking out."
+    echo "Directory $dir does not exist. Breaking out."
     exit 1
   fi
 }
@@ -94,3 +94,5 @@ for config in "${configs[@]}"; do
     done
   done
 done
+
+echo "Results stored in ${outputFile}."

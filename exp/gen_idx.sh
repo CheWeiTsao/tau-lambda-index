@@ -3,7 +3,6 @@ ulimit -v $((180*1024*1024))
 
 # config = [corpus name] [idx type] [tau_l] [tau_u] [lambda]
 configs=(
-  "'english dblp dna_real influenza'    '1 2 3'   '0'   '0'                       '0'            "
   "english                              '1 2 3'   '0'   '1 2 3 4'                 '20 60 100 200'"
   "dblp                                 '1 2 3'   '0'   '1 2 3 4'                 '20 60 100 200'"
   "dna_real                             '1 2 3'   '0'   '20 40 60 80'             '20 60 100 200'"
@@ -22,7 +21,7 @@ create_directory() {
 check_directory() {
   local dir=$1
   if [ ! -d "$dir" ]; then
-    echo "❌ Directory $dir does not exist. Breaking out."
+    echo "Directory $dir does not exist. Breaking out."
     exit 1
   fi
 }
@@ -30,8 +29,19 @@ check_directory() {
 check_file() {
   local file=$1
   if [ ! -f "$file" ]; then
-    echo "❌ File $file does not exist. Breaking out."
+    echo "File $file does not exist. Breaking out."
     exit 1
+  fi
+}
+
+create_baseline_idx() {
+  local dir1=$1
+  local dir2=$2
+  local type1=$3
+  if [ ! -f "$dir2/0_0_0_idx" ]; then
+    echo "Baseline idx does not exist. Generating..."
+    ./${exec_dir}/gen_index "$dir1/0_0_0_mf" "$dir2/0_0_0_idx" "$type1" "$dir2/0_0_0_log"
+    # ./${exec_dir}/gen_index "$mf_path" "$idx_path" "$type" "$log_path"
   fi
 }
 
@@ -73,6 +83,8 @@ for config in "${configs[@]}"; do
 
       idx_dir="${folder}/${subfolder}"
       create_directory "$idx_dir"
+
+      create_baseline_idx "$mf_dir" "$idx_dir" "$type"
 
       for tau_l_value in "${tau_l[@]}"; do
         for tau_u_value in "${tau_u[@]}"; do
