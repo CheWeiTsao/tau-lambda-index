@@ -537,7 +537,9 @@ void tau_lambda_index::locate(std::ifstream &in, std::ofstream &out) {
 
         std::vector<uint64_t> results;
         if (is_original_index) {
-            _locate_original_index(pattern, results,  one_time);
+            _locate_original_index(pattern, results, one_time);
+        } else {
+            _locate(pattern, results, one_xbwt_time, one_time);
         }
         
         std::sort(results.begin(), results.end());
