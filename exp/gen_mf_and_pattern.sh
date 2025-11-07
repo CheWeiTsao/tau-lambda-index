@@ -14,7 +14,7 @@ create_rawText() {
   local dir1=$1
   local dir2=$2
   local file=$3
-  if [ ! -d "$dir1" ]; then
+  if [ ! -f "$dir1" ]; then
     echo "rawText $dir1 does not exist. Uncompresseing..."
     unxz -c "dataset/${file}" > "$dir1"
     ./${exec_dir}/gen_mf "$dir1" "$dir2/0_0_0_mf" "0" "0" "0" "$delimiter_symbols"
