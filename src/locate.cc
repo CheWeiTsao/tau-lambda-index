@@ -16,8 +16,6 @@ int main(int argc, char* argv[]) {
     std::string inputIndexPath = argv[1];
     std::string inputPatternPath = argv[2];
     std::string outputResultPath = argv[3];
-    bool xbwt_only = 0;
-    if (argc >= 5) { xbwt_only = (std::stoi(argv[4]) == 1); }
 
     std::ifstream inputIndex(inputIndexPath);
     if (!inputIndex.is_open()) {
@@ -39,10 +37,8 @@ int main(int argc, char* argv[]) {
 
     // create a tau-lambda-index instance and operate it
     tau_lambda_index* idx = new tau_lambda_index();
-    idx->load(inputIndex, inputIndexPath, xbwt_only);
-    if (!xbwt_only) {
-        idx->locate(inputPatternFile, outputResultFile);
-    }
+    idx->load(inputIndex, inputIndexPath);
+    idx->locate(inputPatternFile, outputResultFile);
 
     inputIndex.close();
     inputPatternFile.close();

@@ -43,7 +43,7 @@ public:
     tau_lambda_index(std::string &mf_path, std::string &index_path, index_types index_type);
     void serialize(std::ofstream &out);
     void serialize_partition(std::ofstream &out1, std::ofstream &out2);
-    void load(std::ifstream &in, std::string inputIndexPath, bool xbwt_only = false);
+    void load(std::ifstream &in, std::string inputIndexPath);
     void locate(std::ifstream &in, std::ofstream &out);
     double get_masked_ratio() { return masked_ratio; }
     void log(std::ofstream& out) {
@@ -408,7 +408,7 @@ void tau_lambda_index::serialize_partition(std::ofstream &out1, std::ofstream &o
     }
 }
 
-void tau_lambda_index::load(std::ifstream &in, std::string inputIndexPath, bool xbwt_only) {
+void tau_lambda_index::load(std::ifstream &in, std::string inputIndexPath) {
     size_t length;
     in.read(reinterpret_cast<char*>(&length), sizeof(length));
     inputTextPath.resize(length);
@@ -423,18 +423,16 @@ void tau_lambda_index::load(std::ifstream &in, std::string inputIndexPath, bool 
         symbol_table_.Load(in);
         xbwt->Load(in);
     }
-    if (!xbwt_only) {
-        if (index_type == index_types::r_index_type) {
-            r_index = new ri::r_index<>();
-            r_index->load(in);
-        } else if (index_type == index_types::lz77_type) {
-            std::string lz77Path = inputIndexPath + "_lz77";
-            FILE* fd = fopen(lz77Path.c_str(), "r");
-            lz77 = lz77index::static_selfindex_lz77::load(fd);
-            fclose(fd);
-        } else if (index_type == index_types::LMS_type) {
-            lms.load(in);
-        }
+    if (index_type == index_types::r_index_type) {
+        r_index = new ri::r_index<>();
+        r_index->load(in);
+    } else if (index_type == index_types::lz77_type) {
+        std::string lz77Path = inputIndexPath + "_lz77";
+        FILE* fd = fopen(lz77Path.c_str(), "r");
+        lz77 = lz77index::static_selfindex_lz77::load(fd);
+        fclose(fd);
+    } else if (index_type == index_types::LMS_type) {
+        lms.load(in);
     }
 }
 
