@@ -59,7 +59,7 @@ parse_result_file() {
 
 outputFile="[summary]query_time"
 touch ${outputFile}
-echo -e "xbwt_time(us)\ttime(us)\tocc\ttext_length\ttype\tcorpus\twith_mf\ttau_l\ttau_u\tlambda\tmasked_ratio" > "${outputFile}"
+echo -e "xbwt_time(us)\total_ttime(us)\tocc\ttext_length\ttype\tcorpus\twith_mf\ttau_l\ttau_u\tlambda\tmasked_ratio" > "${outputFile}"
 
 for config in "${configs[@]}"; do
   eval set -- $config
