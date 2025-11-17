@@ -91,8 +91,10 @@ for config in "${configs[@]}"; do
           for lambda_value in "${lambda[@]}"; do
             log_path="${idx_dir}/${tau_l_value}_${tau_u_value}_${lambda_value}_log"
             result_path_with="${result_folder_with}/${tau_l_value}_${tau_u_value}_${lambda_value}"
+            result_path_with_xbwt_I_bsl="${result_folder_with}/${tau_l_value}_${tau_u_value}_${lambda_value}_xbwt_I_bsl"
             result_path_with_bsl="${result_folder_with}/${tau_l_value}_${tau_u_value}_${lambda_value}_bsl"
             result_path_without="${result_folder_without}/${tau_l_value}_${tau_u_value}_${lambda_value}"
+            result_path_without_xbwt_I_bsl="${result_folder_without}/${tau_l_value}_${tau_u_value}_${lambda_value}_xbwt_I_bsl"
             result_path_without_bsl="${result_folder_without}/${tau_l_value}_${tau_u_value}_${lambda_value}_bsl"
             
             masked_ratio=""
@@ -108,6 +110,9 @@ for config in "${configs[@]}"; do
 
             parse_result_file "$result_path_with"
             echo -e "${xwbt_time_us}\t${time_us}\t${occ}\t${file_size}\t${subfolder}\t${corpus}\twith\t${tau_l_value}\t${tau_u_value}\t${lambda_value}\t${masked_ratio}" >> "$outputFile"
+            
+            parse_result_file "$result_path_with_xbwt_I_bsl"
+            echo -e "${xwbt_time_us}\t${time_us}\t${occ}\t${file_size}\t${subfolder}_xbwt_I_bsl\t${corpus}\twith\t${tau_l_value}\t${tau_u_value}\t${lambda_value}\t${masked_ratio}" >> "$outputFile"
 
             if [ ${subfolder} != "DCC" ]; then
               parse_result_file "$result_path_with_bsl"
@@ -116,6 +121,9 @@ for config in "${configs[@]}"; do
 
             parse_result_file "$result_path_without"
             echo -e "${xwbt_time_us}\t${time_us}\t${occ}\t${file_size}\t${subfolder}\t${corpus}\twithout\t${tau_l_value}\t${tau_u_value}\t${lambda_value}\t${masked_ratio}" >> "$outputFile"
+
+            parse_result_file "$result_path_without_xbwt_I_bsl"
+            echo -e "${xwbt_time_us}\t${time_us}\t${occ}\t${file_size}\t${subfolder}_xbwt_I_bsl\t${corpus}\twithout\t${tau_l_value}\t${tau_u_value}\t${lambda_value}\t${masked_ratio}" >> "$outputFile"
 
             if [ ${subfolder} != "DCC" ]; then
               parse_result_file "$result_path_without_bsl"

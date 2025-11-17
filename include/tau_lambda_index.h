@@ -44,7 +44,9 @@ public:
     void serialize(std::ofstream &out);
     void serialize_partition(std::ofstream &out1, std::ofstream &out2);
     void load(std::ifstream &in, std::string inputIndexPath);
+    void load_xbwt_I_bsl(std::ifstream &I_masked_in, std::ifstream &I_bsl_in, std::string I_masked_path, std::string I_bsl_path);
     void locate(std::ifstream &in, std::ofstream &out);
+    // void locate_xbwt_I_bsl(std::ifstream &in, std::ofstream &out);
     double get_masked_ratio() { return masked_ratio; }
     void log(std::ofstream& out) {
         out << "[" << inputTextPath << "]\n";
@@ -166,7 +168,7 @@ private:
     void load_min_factors(std::string &mf_path);
     void build_XBWT(const std::string &text);
     void gen_masked_text(const std::string &text, std::string &masked_text);
-    void _locate(std::string &pattern, std::vector<uint64_t> &results, size_t &one_xbwt_time, size_t &one_time);
+    void _locate_I_masked(std::string &pattern, std::vector<uint64_t> &results, size_t &one_xbwt_time, size_t &one_time);
     void _locate_original_index(std::string &pattern, std::vector<uint64_t> &results, size_t &one_time);
     void load_Text(std::string &text, std::string &textPath) {
         std::ifstream text_in(textPath);
@@ -236,6 +238,37 @@ private:
         ulint n = std::atoi(header.substr(start_pos).substr(0,end_pos).c_str());
 
         return n;
+    }
+
+    // common functions
+    void read_input_parameters(std::ifstream &in, std::string inputIndexPath) {
+        size_t length;
+        in.read(reinterpret_cast<char*>(&length), sizeof(length));
+        inputTextPath.resize(length);
+        in.read(&inputTextPath[0], length);
+        sdsl::read_member(index_type, in);
+        sdsl::read_member(tau_l, in);
+        sdsl::read_member(tau_u, in);
+        if (tau_u == 0) { is_original_index = true; }
+        else { is_original_index = false; }
+        sdsl::read_member(lambda, in);
+        sdsl::read_member(masked_ratio, in);
+    }
+    void read_pattern_parameters(std::ifstream &in, size_t &n, size_t &m){
+        std::string header;
+        std::getline(in, header);
+
+        n = get_pattern_info("number=", header);
+        m = get_pattern_info("length=", header);
+        if (is_original_index) {
+            tau_l = get_pattern_info("tau_l=", header);
+            tau_u = get_pattern_info("tau_u=", header);
+            lambda = get_pattern_info("lambda=", header);
+        } else if (tau_l != get_pattern_info("tau_l=", header) ||
+                tau_u != get_pattern_info("tau_u=", header) ||
+                lambda != get_pattern_info("lambda=", header)) {
+            throw std::invalid_argument("tau_l, tau_u, lambda setting mismatch between the index and query patterns");
+        }
     }
 };
 
@@ -409,20 +442,13 @@ void tau_lambda_index::serialize_partition(std::ofstream &out1, std::ofstream &o
 }
 
 void tau_lambda_index::load(std::ifstream &in, std::string inputIndexPath) {
-    size_t length;
-    in.read(reinterpret_cast<char*>(&length), sizeof(length));
-    inputTextPath.resize(length);
-    in.read(&inputTextPath[0], length);
-    sdsl::read_member(index_type, in);
-    sdsl::read_member(tau_l, in);
-    sdsl::read_member(tau_u, in);
-    if (tau_u == 0) { is_original_index = true; }
-    sdsl::read_member(lambda, in);
-    sdsl::read_member(masked_ratio, in);
+    read_input_parameters(in, inputIndexPath);
+
     if (!is_original_index) {
         symbol_table_.Load(in);
         xbwt->Load(in);
     }
+
     if (index_type == index_types::r_index_type) {
         r_index = new ri::r_index<>();
         r_index->load(in);
@@ -436,7 +462,30 @@ void tau_lambda_index::load(std::ifstream &in, std::string inputIndexPath) {
     }
 }
 
-void tau_lambda_index::_locate(std::string &pattern, std::vector<uint64_t> &results, size_t &one_xbwt_time, size_t &one_time) {
+void tau_lambda_index::load_xbwt_I_bsl(std::ifstream &I_masked_in, std::ifstream &I_bsl_in, std::string I_masked_path, std::string I_bsl_path) {
+    //  read I_baseline
+    read_input_parameters(I_bsl_in, I_bsl_path);
+    if (index_type == index_types::r_index_type) {
+        r_index = new ri::r_index<>();
+        r_index->load(I_bsl_in);
+    } else if (index_type == index_types::lz77_type) {
+        std::string lz77Path = I_bsl_path + "_lz77";
+        FILE* fd = fopen(lz77Path.c_str(), "r");
+        lz77 = lz77index::static_selfindex_lz77::load(fd);
+        fclose(fd);
+    } else if (index_type == index_types::LMS_type) {
+        lms.load(I_bsl_in);
+    }
+
+    //  read XBWT from I_masked file
+    read_input_parameters(I_masked_in, I_masked_path);
+    if (!is_original_index) {
+        symbol_table_.Load(I_masked_in);
+        xbwt->Load(I_masked_in);
+    }
+}
+
+void tau_lambda_index::_locate_I_masked(std::string &pattern, std::vector<uint64_t> &results, size_t &one_xbwt_time, size_t &one_time) {
     std::chrono::steady_clock::time_point t1, t2, t3;
     t1 = std::chrono::steady_clock::now();
     results.clear();
@@ -509,20 +558,9 @@ void tau_lambda_index::_locate_original_index(std::string &pattern, std::vector<
 }
 
 void tau_lambda_index::locate(std::ifstream &in, std::ofstream &out) {
-    std::string header;
-	std::getline(in, header);
+    size_t n, m;
+    read_pattern_parameters(in, n, m);
 
-    size_t n = get_pattern_info("number=", header);
-    size_t m = get_pattern_info("length=", header);
-    if (is_original_index) {
-        tau_l = get_pattern_info("tau_l=", header);
-        tau_u = get_pattern_info("tau_u=", header);
-        lambda = get_pattern_info("lambda=", header);
-    } else if (tau_l != get_pattern_info("tau_l=", header) ||
-               tau_u != get_pattern_info("tau_u=", header) ||
-               lambda != get_pattern_info("lambda=", header)) {
-        throw std::invalid_argument("tau_l, tau_u, lambda setting mismatch between the index and query patterns");
-    }
     size_t one_xbwt_time = 0, one_time = 0, total_xbwt_time = 0, total_time = 0, total_cnt = 0;
 
     for (size_t i = 0; i < n; i++) {
@@ -537,7 +575,7 @@ void tau_lambda_index::locate(std::ifstream &in, std::ofstream &out) {
         if (is_original_index) {
             _locate_original_index(pattern, results, one_time);
         } else {
-            _locate(pattern, results, one_xbwt_time, one_time);
+            _locate_I_masked(pattern, results, one_xbwt_time, one_time);
         }
         
         std::sort(results.begin(), results.end());

@@ -54,7 +54,7 @@ if(NOT SDSL_INCLUDE_DIR OR NOT SDSL_LIB OR NOT DIVSUFSORT_LIB OR NOT DIVSUFSORT6
   message(STATUS "SDSL_LIB: ${SDSL_LIB}")
   message(STATUS "DIVSUFSORT_LIB: ${DIVSUFSORT_LIB}")
   message(STATUS "DIVSUFSORT64_LIB: ${DIVSUFSORT64_LIB}")
-  message(FATAL_ERROR "❌ Required libraries not found.
+  message(FATAL_ERROR "Required libraries not found.
   Hints:
     1) If you installed with: ./install.sh \$HOME/.local
        then configure with:   -DCMAKE_PREFIX_PATH=\$HOME/.local
@@ -124,6 +124,7 @@ add_executable(add_delimiter src/add_delimiter.cc)
 add_executable(gen_index src/gen_index.cc ${UTIL_SRC} ${LZ77_Ref} ${LMS_Ref})
 add_executable(gen_pattern src/gen_pattern.cc ${UTIL_SRC} ${LZ77_Ref} ${LMS_Ref})
 add_executable(locate src/locate.cc ${UTIL_SRC} ${LZ77_Ref} ${LMS_Ref})
+add_executable(locate_xbwt_I_bsl src/locate_xbwt_I_bsl.cc ${UTIL_SRC} ${LZ77_Ref} ${LMS_Ref})
 add_executable(serialize_partition src/serialize_partition.cc ${UTIL_SRC} ${LZ77_Ref} ${LMS_Ref})
 
 # Link libraries
@@ -131,4 +132,5 @@ set(COMMON_LIBS ${SDSL_LIB} ${DIVSUFSORT_LIB} ${DIVSUFSORT64_LIB} Threads::Threa
 target_link_libraries(gen_index ${COMMON_LIBS})
 target_link_libraries(gen_pattern ${COMMON_LIBS})
 target_link_libraries(locate ${COMMON_LIBS})
+target_link_libraries(locate_xbwt_I_bsl ${COMMON_LIBS})
 target_link_libraries(serialize_partition ${COMMON_LIBS})

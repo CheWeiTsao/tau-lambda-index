@@ -82,24 +82,30 @@ for config in "${configs[@]}"; do
             pattern_path_with="${pattern_dir}/${tau_l_value}_${tau_u_value}_${lambda_value}_patterns_with"
             pattern_path_without="${pattern_dir}/${tau_l_value}_${tau_u_value}_${lambda_value}_patterns_without"
             result_path_with="${result_folder_with}/${tau_l_value}_${tau_u_value}_${lambda_value}"
+            result_path_with_xbwt_I_bsl="${result_folder_with}/${tau_l_value}_${tau_u_value}_${lambda_value}_xbwt_I_bsl"
             result_path_with_bsl="${result_folder_with}/${tau_l_value}_${tau_u_value}_${lambda_value}_bsl"
             result_path_without="${result_folder_without}/${tau_l_value}_${tau_u_value}_${lambda_value}"
+            result_path_without_xbwt_I_bsl="${result_folder_without}/${tau_l_value}_${tau_u_value}_${lambda_value}_xbwt_I_bsl"
             result_path_without_bsl="${result_folder_without}/${tau_l_value}_${tau_u_value}_${lambda_value}_bsl"
             massif_out_with="${result_folder_with}/${tau_l_value}_${tau_u_value}_${lambda_value}_massif"
 
             echo "Running ./${exec_dir}/locate $idx_path $pattern_path_with $result_path_with"
             
             touch "$result_path_with"
+            touch "$result_path_with_xbwt_I_bsl"
             touch "$result_path_with_bsl"
             touch "$result_path_without"
+            touch "$result_path_without_xbwt_I_bsl"
             touch "$result_path_without_bsl"
 
             /usr/bin/time -v -a -o "$result_path_with" ./${exec_dir}/locate "$idx_path" "$pattern_path_with" "$result_path_with"
+            /usr/bin/time -v -a -o "$result_path_with_xbwt_I_bsl" ./${exec_dir}/locate_xbwt_I_bsl "$idx_path" "$idx_path_bsl" "$pattern_path_with" "$result_path_with_xbwt_I_bsl"
             if [ ${subfolder} != "DCC" ]; then
                 /usr/bin/time -v -a -o "$result_path_with_bsl" ./${exec_dir}/locate "$idx_path_bsl" "$pattern_path_with" "$result_path_with_bsl"
             fi
 
             /usr/bin/time -v -a -o "$result_path_without" ./${exec_dir}/locate "$idx_path" "$pattern_path_without" "$result_path_without"
+            /usr/bin/time -v -a -o "$result_path_without_xbwt_I_bsl" ./${exec_dir}/locate_xbwt_I_bsl "$idx_path" "$idx_path_bsl" "$pattern_path_without" "$result_path_without_xbwt_I_bsl"
             if [ ${subfolder} != "DCC" ]; then
               /usr/bin/time -v -a -o "$result_path_without_bsl" ./${exec_dir}/locate "$idx_path_bsl" "$pattern_path_without" "$result_path_without_bsl"
             fi
